@@ -4,28 +4,23 @@ import time
 import sqlite3
 from sqlite3 import OperationalError
 from datetime import datetime
+import csv
 
-# Minha classe
 class MeuETL:
     def __init__(self, *args, **kwargs):  
-        self.url = 'https://www.clubefii.com.br/fundo_imobiliario_lista'
         self.header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
         self.lista_fiis = []
-        response = requests.get(self.url, headers=self.header, timeout=(3.05, 27))
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'lxml')  
-            links = soup.find_all('a')  
-            for link in links:
-                fii = str(link.attrs.get('href'))
-                if fii.startswith('/fiis/'):
-                    self.lista_fiis.append(fii)
-            self.lista_fiis = list(set(self.lista_fiis))
+        with open('fundosListados.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                self.lista_fiis.append(row['Codigo'])
+
 
     def extract_transform(self):
         lista_cotacao = []
         for fii in self.lista_fiis:
             fii = fii.replace('/fiis/','')
-            url = 'https://finance.yahoo.com/quote/' + fii + '.SA'
+            url = 'https://finance.yahoo.com/quote/' + fii + '11.SA'
             response = requests.get(url, headers=self.header)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.content, 'lxml')  
