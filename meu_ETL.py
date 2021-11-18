@@ -22,8 +22,11 @@ class Extract(ABC):
 
 
 class Extract_1(Extract):
+    def __init__(self, nome_arquivo='fundosListados.csv'):
+        self.nome_arquivo = nome_arquivo
+
     def _extract_to_list(self):
-        with open('fundosListados.csv', newline='') as csvfile:
+        with open(self.nome_arquivo, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 self.lista_fiis.append(row['Codigo'])
@@ -44,7 +47,7 @@ class Extract_1(Extract):
                 cotacao = cotacao[0].text
                 return cotacao
             except IndexError:
-                cotacao = 0.0
+                cotacao = '0.0'
                 return cotacao
 
     def __str__(self):
